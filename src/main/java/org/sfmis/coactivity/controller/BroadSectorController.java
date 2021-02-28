@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("coactivity/broad-sector")
 public class BroadSectorController {
 
 	@Autowired
@@ -34,12 +34,6 @@ public class BroadSectorController {
 		return broadSectorService.index();
 	}
 
-	@GetMapping("create")
-	public void create(HttpServletRequest request) {
-
-		// to be defined
-	}
-
 	@PostMapping("")
 	public Map<String, Object> store(HttpServletRequest request) {
 
@@ -51,13 +45,8 @@ public class BroadSectorController {
 		return broadSectorService.store();
 	}
 
+
 	@GetMapping("/{id}")
-	public void show(HttpServletRequest request, @PathVariable String id) {
-
-		// to be defined
-	}
-
-	@GetMapping("/{id}/edit")
 	public Map<String, Object> edit(HttpServletRequest request, @PathVariable String id) {
 		return broadSectorService.edit(id);
 	}

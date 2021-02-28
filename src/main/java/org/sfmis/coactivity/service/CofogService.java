@@ -28,19 +28,25 @@ public class CofogService extends AutoService {
 	@Autowired
 	ValidationService validationService;
 
-	public Map<String, String> rules() {
-		Map<String, String> rules = new HashMap<>();
-		rules.put("code", "required");
-		return rules;
-
-	}
-
 	public Map<String, Object> index() {
-		return null;
-	}
+		int perPage = (request("rows") == null | (request("rows")).isBlank()) ? 10 : Integer.parseInt(request("rows"));
+		int page = (request("page") == null | (request("page")).isBlank()) ? 1 : Integer.parseInt(request("page"));
+		if (perPage > 100) {
+			perPage = 100;
+		}
+		String sql = "select (select code,nameNp,nameEn,disabled,approved from  coactivity.cofog order by code ASC offset "
+				+ ((page - 1) * perPage) + " rows fetch next " + perPage + " rows only for json auto) as rows";
 
-	public void create() {
-
+		Map<String, Object> result = new HashMap<>();
+		List<Tuple> rsTuple = db.getResultList(sql);
+		System.out.println(rsTuple.get(0).get(0));
+		result.put("rows", rsTuple.get(0).get(0));
+		result.put("currentPage", page);
+		result.put("perPage", perPage);
+		sql = "select count(cofogId) from coactivity.cofog ";
+		Tuple totalRows = db.getSingleResult(sql);
+		result.put("total", totalRows.get(0));
+		return Messenger.getMessenger().setData(result).success();
 	}
 
 	public Map<String, Object> store() {
@@ -58,10 +64,6 @@ public class CofogService extends AutoService {
 		} else {
 			return Messenger.getMessenger().success();
 		}
-	}
-
-	public void show(String id) {
-
 	}
 
 	public Map<String, Object> edit(String id) {
@@ -82,7 +84,7 @@ public class CofogService extends AutoService {
 		int rowEffect = db.executeUpdate(sql,
 				Arrays.asList(model.parentId, model.code, model.nameEn, model.nameNp, model.descriptionNp,
 						model.descriptionEn, model.orders, model.levels, model.keys, model.keyNumber, model.disabled,
-						model.approved,id));
+						model.approved, id));
 		if (rowEffect == 0) {
 			return Messenger.getMessenger().error();
 		} else {
@@ -91,23 +93,24 @@ public class CofogService extends AutoService {
 	}
 
 	public Map<String, Object> destroy(String id) {
-		String sql="DELETE from coactivity.cofog where cofogId=?";
+		String sql = "DELETE from coactivity.cofog where cofogId=?";
 		int rowEffect = db.executeUpdate(sql, Arrays.asList(id));
-		if(rowEffect == 0) {
+		if (rowEffect == 0) {
 			return Messenger.getMessenger().setMessage("Invalid Requst").error();
 		} else {
 			return Messenger.getMessenger().success();
 		}
-		
+
 	}
+
 	public List<Map<String, String>> getCofog() {
 		List<Map<String, String>> data = new ArrayList<>();
 		String sql = "select cofogId,code,nameEn,nameNp from coactivity.cofog where approved=1 and disabled=0 ";
 		if (!document.getElementById("parentId").value.isBlank()) {
 			sql += " and parentId='" + (document.getElementById("parentId").value).replace("'", "''") + "'";
 		}
-		
-		sql+="order by [CODE] Asc";
+
+		sql += "order by [CODE] Asc";
 		List<Tuple> tuples = db.getResultList(sql);
 		if (tuples != null) {
 			for (Tuple t : tuples) {
@@ -119,9 +122,8 @@ public class CofogService extends AutoService {
 				data.add(map);
 			}
 
-		
-	}
+		}
 		return data;
-	
-}
+
+	}
 }

@@ -27,19 +27,25 @@ public class CentralActivityService extends AutoService {
 	@Autowired
 	ValidationService validationService;
 
-	public Map<String, String> rules() {
-		Map<String, String> rules = new HashMap<>();
-		rules.put("code", "required");
-		return rules;
-
-	}
-
 	public Map<String, Object> index() {
-		return null;
-	}
+		int perPage = (request("rows") == null | (request("rows")).isBlank()) ? 10 : Integer.parseInt(request("rows"));
+		int page = (request("page") == null | (request("page")).isBlank()) ? 1 : Integer.parseInt(request("page"));
+		if (perPage > 100) {
+			perPage = 100;
+		}
+		String sql = "select (select code,nameNp,nameEn,disabled,approved from  coactivity.centralActivity order by code ASC offset "
+				+ ((page - 1) * perPage) + " rows fetch next " + perPage + " rows only for json auto) as rows";
 
-	public void create() {
-
+		Map<String, Object> result = new HashMap<>();
+		List<Tuple> rsTuple = db.getResultList(sql);
+		System.out.println(rsTuple.get(0).get(0));
+		result.put("rows", rsTuple.get(0).get(0));
+		result.put("currentPage", page);
+		result.put("perPage", perPage);
+		sql = "select count(caId) from coactivity.centralActivity ";
+		Tuple totalRows = db.getSingleResult(sql);
+		result.put("total", totalRows.get(0));
+		return Messenger.getMessenger().setData(result).success();
 	}
 
 	public Map<String, Object> store() {
@@ -55,10 +61,6 @@ public class CentralActivityService extends AutoService {
 		} else {
 			return Messenger.getMessenger().success();
 		}
-
-	}
-
-	public void show(String id) {
 
 	}
 
@@ -97,15 +99,16 @@ public class CentralActivityService extends AutoService {
 		}
 
 	}
-	
+
 	public List<Map<String, String>> getCentralActivities() {
 		List<Map<String, String>> data = new ArrayList<>();
 		String sql = "select caId,code,nameEn,nameNp from coactivity.centralActivity where approved=1 and disabled=0 ";
 		if (!document.getElementById("sectorialActivityId").value.isBlank()) {
-			sql += " and sectorialActivityId='" + (document.getElementById("sectorialActivityId").value).replace("'", "''") + "'";
+			sql += " and sectorialActivityId='"
+					+ (document.getElementById("sectorialActivityId").value).replace("'", "''") + "'";
 		}
-		
-		sql+="order by [CODE] Asc";
+
+		sql += "order by [CODE] Asc";
 		List<Tuple> tuples = db.getResultList(sql);
 		if (tuples != null) {
 			for (Tuple t : tuples) {
@@ -117,10 +120,9 @@ public class CentralActivityService extends AutoService {
 				data.add(map);
 			}
 
-		
-	}
+		}
 		return data;
-	
-}
+
+	}
 
 }

@@ -42,11 +42,6 @@ public class ActivityController {
 		return as.index();
 	}
 
-	@GetMapping("create")
-	public void create(HttpServletRequest request) {
-
-		// to be defined
-	}
 	@PostMapping("")
 	public Map<String, Object> store(HttpServletRequest request) {
 		Validator validator = validationService.validate(Activity.rules());
@@ -56,13 +51,8 @@ public class ActivityController {
 		return as.store();
 	}
 	
-	@GetMapping("/{id}")
-	public void show(HttpServletRequest request, @PathVariable String id) {
-
-		// to be defined
-	}
 	
-	@GetMapping("/{id}/edit")
+	@GetMapping("/{id}")
 	public Map<String, Object> edit(HttpServletRequest request, @PathVariable String id) {
 		
 		return as.edit(id);

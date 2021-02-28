@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TargetGroupController {
 	@Autowired
 	TargetGroupService tgs;
-	
+
 	@Autowired
 	ValidationService validationService;
 
@@ -31,43 +31,34 @@ public class TargetGroupController {
 	public Map<String, Object> index(HttpServletRequest request) {
 		return tgs.index();
 	}
-	@GetMapping("create")
-	public void create(HttpServletRequest request) {
 
-		// to be defined
-	}
-	
 	@PostMapping("")
 	public Map<String, Object> store(HttpServletRequest request) {
 		Validator validator = validationService.validate(TargetGroup.rules());
-		if(validator.isFailed()) {
+		if (validator.isFailed()) {
 			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
-		}else {
+		} else {
 			return tgs.store();
 		}
-		
+
 	}
+
 	@GetMapping("/{id}")
-	public void show(HttpServletRequest request, @PathVariable String id) {
-
-		// to be defined
-	}
-
-	@GetMapping("/{id}/edit")
 	public Map<String, Object> edit(HttpServletRequest request, @PathVariable String id) {
 		return tgs.edit(id);
 	}
-	
+
 	@PutMapping("/{id}")
 	public Map<String, Object> update(HttpServletRequest request, @PathVariable String id) {
 		Validator validator = validationService.validate(TargetGroup.rules());
-		if(validator.isFailed()) {
+		if (validator.isFailed()) {
 			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
 		} else {
 			return tgs.update(id);
 		}
-		
+
 	}
+
 	@DeleteMapping("/{id}")
 	public Map<String, Object> destroy(HttpServletRequest request, @PathVariable String id) {
 		return tgs.destroy(id);

@@ -28,22 +28,30 @@ public class SectorService extends AutoService {
 	@Autowired
 	ValidationService validationService;
 
-	public Map<String, String> rules() {
-		Map<String, String> rules = new HashMap<>();
-		rules.put("code", "required");
-		return rules;
 
-	}
 
 	public Map<String, Object> index() {
+		int perPage = (request("rows") == null | (request("rows")).isBlank()) ? 10 : Integer.parseInt(request("rows"));
+		int page = (request("page") == null | (request("page")).isBlank()) ? 1 : Integer.parseInt(request("page"));
+		if (perPage > 100) {
+			perPage = 100;
+		}
+		String sql = "select (select code,nameNp,nameEn,disabled,approved from  coactivity.sector order by code ASC offset "
+				+ ((page - 1) * perPage) + " rows fetch next " + perPage + " rows only for json auto) as rows";
 
-		return null;
+		Map<String, Object> result = new HashMap<>();
+		List<Tuple> rsTuple = db.getResultList(sql);
+		System.out.println(rsTuple.get(0).get(0));
+		result.put("rows", rsTuple.get(0).get(0));
+		result.put("currentPage", page);
+		result.put("perPage", perPage);
+		sql = "select count(sectorId) from coactivity.sector ";
+		Tuple totalRows = db.getSingleResult(sql);
+		result.put("total", totalRows.get(0));
+		return Messenger.getMessenger().setData(result).success();
 
 	}
 
-	public void create() {
-
-	}
 
 	public Map<String, Object> store() {
 		Sector sector = new Sector();
@@ -59,10 +67,6 @@ public class SectorService extends AutoService {
 		} else {
 			return Messenger.getMessenger().success();
 		}
-
-	}
-
-	public void show(String id) {
 
 	}
 

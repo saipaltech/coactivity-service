@@ -31,6 +31,9 @@ public class BroadSector {
 	public static Map<String, String> rules() {
 		Map<String, String> rules = new HashMap<>();
 		rules.put("code", "required");
+		rules.put("nameNp", "required");
+		rules.put("disabled", "required");
+		rules.put("approved", "required");
 		return rules;
 	}
 }

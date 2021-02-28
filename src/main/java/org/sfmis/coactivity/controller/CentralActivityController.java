@@ -23,60 +23,55 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("coactivity/central-activity")
 public class CentralActivityController {
-	
+
 	@Autowired
 	CentralActivityService cas;
-	
+
 	@Autowired
 	ValidationService validationService;
-	
+
 	@Autowired
 	SectorialActivityService sas;
+
 	@GetMapping("")
 	public Map<String, Object> index(HttpServletRequest request) {
 		return cas.index();
 	}
-	@GetMapping("create")
-	public void create(HttpServletRequest request) {
 
-		// to be defined
-	}
-	
 	@PostMapping("")
 	public Map<String, Object> store(HttpServletRequest request) {
 		Validator validator = validationService.validate(CentralActivity.rules());
-		if(validator.isFailed()) {
+		if (validator.isFailed()) {
 			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
 		}
 		return cas.store();
 	}
-	@GetMapping("/{id}")
-	public void show(HttpServletRequest request, @PathVariable String id) {
 
-		// to be defined
-	}
-	@GetMapping("/{id}/edit")
+	@GetMapping("/{id}")
 	public Map<String, Object> edit(HttpServletRequest request, @PathVariable String id) {
-		
+
 		return cas.edit(id);
 	}
+
 	@PutMapping("/{id}")
 	public Map<String, Object> update(HttpServletRequest request, @PathVariable String id) {
 		Validator validator = validationService.validate(CentralActivity.rules());
-		if(validator.isFailed()) {
+		if (validator.isFailed()) {
 			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
 		} else {
 			return cas.update(id);
 		}
 	}
+
 	@DeleteMapping("/{id}")
 	public Map<String, Object> destroy(HttpServletRequest request, @PathVariable String id) {
 		return cas.destroy(id);
 	}
+
 	@GetMapping("/sectorialActivities")
-	public Map<String, Object> sectorialActivities(){
+	public Map<String, Object> sectorialActivities() {
 		List<Map<String, String>> data = sas.getSectorialActivities();
 		return Messenger.getMessenger().setData(data).success();
-		
+
 	}
 }

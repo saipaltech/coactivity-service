@@ -1,12 +1,8 @@
 package org.sfmis.coactivity.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.persistence.Tuple;
 import javax.servlet.http.HttpServletRequest;
-
 import org.sfmis.coactivity.model.Sector;
 import org.sfmis.coactivity.service.BroadSectorService;
 import org.sfmis.coactivity.service.SectorService;
@@ -39,12 +35,6 @@ public class SectorController {
 		return sectorService.index();
 	}
 
-	@GetMapping("create")
-	public void create(HttpServletRequest request) {
-
-		// to be defined
-	}
-
 	@PostMapping("")
 	public Map<String, Object> store(HttpServletRequest request) {
 		Validator validator = validationService.validate(Sector.rules());
@@ -55,12 +45,6 @@ public class SectorController {
 	}
 
 	@GetMapping("/{id}")
-	public void show(HttpServletRequest request, @PathVariable String id) {
-
-		// to be defined
-	}
-
-	@GetMapping("/{id}/edit")
 	public Map<String, Object> edit(HttpServletRequest request, @PathVariable String id) {
 		return sectorService.edit(id);
 	}
@@ -86,7 +70,5 @@ public class SectorController {
 		List<Map<String, String>> data = bservice.getBroadSector();
 		return Messenger.getMessenger().setData(data).success();
 	}
-
-	
 
 }

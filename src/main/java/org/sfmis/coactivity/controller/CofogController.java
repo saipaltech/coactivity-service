@@ -22,54 +22,46 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("coactivity/cofog")
 public class CofogController {
-	
+
 	@Autowired
 	CofogService cs;
-	
+
 	@Autowired
 	ValidationService validationService;
-	
+
 	@GetMapping("")
 	public Map<String, Object> index(HttpServletRequest request) {
 		return cs.index();
 	}
-	@GetMapping("create")
-	public void create(HttpServletRequest request) {
 
-		// to be defined
-	}
 	@PostMapping("")
 	public Map<String, Object> store(HttpServletRequest request) {
-	Validator validator = validationService.validate(Cofog.rules());
-	if(validator.isFailed()) {
-		return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
+		Validator validator = validationService.validate(Cofog.rules());
+		if (validator.isFailed()) {
+			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
+		}
+		return cs.store();
 	}
-	return cs.store();
-	}
-	@GetMapping("/{id}")
-	public void show(HttpServletRequest request, @PathVariable String id) {
 
-		// to be defined
-	}
-	
-	@GetMapping("/{id}/edit")
+	@GetMapping("/{id}")
 	public Map<String, Object> edit(HttpServletRequest request, @PathVariable String id) {
-		
+
 		return cs.edit(id);
 	}
+
 	@PutMapping("/{id}")
 	public Map<String, Object> update(HttpServletRequest request, @PathVariable String id) {
 		Validator validator = validationService.validate(Cofog.rules());
-		if(validator.isFailed()) {
+		if (validator.isFailed()) {
 			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
 		} else {
 			return cs.update(id);
 		}
 	}
+
 	@DeleteMapping("/{id}")
 	public Map<String, Object> destroy(HttpServletRequest request, @PathVariable String id) {
 		return cs.destroy(id);
 	}
-	
-	
+
 }

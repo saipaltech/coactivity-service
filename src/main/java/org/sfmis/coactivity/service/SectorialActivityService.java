@@ -27,43 +27,45 @@ public class SectorialActivityService extends AutoService {
 	@Autowired
 	ValidationService validationService;
 
-	public Map<String, String> rules() {
-		Map<String, String> rules = new HashMap<>();
-		rules.put("code", "required");
-		return rules;
-
-	}
-
 	public Map<String, Object> index() {
-		return null;
-	}
+		int perPage = (request("rows") == null | (request("rows")).isBlank()) ? 10 : Integer.parseInt(request("rows"));
+		int page = (request("page") == null | (request("page")).isBlank()) ? 1 : Integer.parseInt(request("page"));
+		if (perPage > 100) {
+			perPage = 100;
+		}
+		String sql = "select (select code,nameNp,nameEn,disabled,approved from  coactivity.sectorialActivity order by code ASC offset "
+				+ ((page - 1) * perPage) + " rows fetch next " + perPage + " rows only for json auto) as rows";
 
-	public void create() {
-
+		Map<String, Object> result = new HashMap<>();
+		List<Tuple> rsTuple = db.getResultList(sql);
+		System.out.println(rsTuple.get(0).get(0));
+		result.put("rows", rsTuple.get(0).get(0));
+		result.put("currentPage", page);
+		result.put("perPage", perPage);
+		sql = "select count(saId) from coactivity.sectorialActivity ";
+		Tuple totalRows = db.getSingleResult(sql);
+		result.put("total", totalRows.get(0));
+		return Messenger.getMessenger().setData(result).success();
 	}
 
 	public Map<String, Object> store() {
 		SectorialActivity model = new SectorialActivity();
 		model.loadData(document);
-		
-		String sql ="INSERT INTO coactivity.sectorialActivity(saId, sectorId, code, nameNp, nameEn, disabled, enterBy, entryDate, approved) VALUES (dbo.newidint(),?,?,?,?,?,?,GETDATE(),? )";
-		int rowEffect = db.executeUpdate(sql,
-				Arrays.asList(model.sectorId, model.code, model.nameNp, model.nameEn, model.disabled, auth.getUserId(),model.approved));
-		if(rowEffect == 0) {
+
+		String sql = "INSERT INTO coactivity.sectorialActivity(saId, sectorId, code, nameNp, nameEn, disabled, enterBy, entryDate, approved) VALUES (dbo.newidint(),?,?,?,?,?,?,GETDATE(),? )";
+		int rowEffect = db.executeUpdate(sql, Arrays.asList(model.sectorId, model.code, model.nameNp, model.nameEn,
+				model.disabled, auth.getUserId(), model.approved));
+		if (rowEffect == 0) {
 			return Messenger.getMessenger().error();
-			
-		}else {
+
+		} else {
 			return Messenger.getMessenger().success();
 		}
-		
-	}
-
-	public void show(String id) {
 
 	}
 
 	public Map<String, Object> edit(String id) {
-		String sql ="select saId, sectorId, code, nameNp, nameEn, disabled, enterBy, entryDate, approved from coactivity.sectorialActivity where saId = ? for json auto";
+		String sql = "select saId, sectorId, code, nameNp, nameEn, disabled, enterBy, entryDate, approved from coactivity.sectorialActivity where saId = ? for json auto";
 		Tuple result = db.getSingleResult(sql, Arrays.asList(id));
 		if (result == null) {
 			return Messenger.getMessenger().error();
@@ -71,39 +73,40 @@ public class SectorialActivityService extends AutoService {
 		} else {
 			return Messenger.getMessenger().setData(result.get(0)).success();
 		}
-		
+
 	}
 
 	public Map<String, Object> update(String id) {
 		SectorialActivity model = new SectorialActivity();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.sectorialActivity set sectorId=?,code=?, nameNp=?, nameEn=?, disabled=?, approved=? where saId=? ";
-		int rowEffect = db.executeUpdate(sql,
-				Arrays.asList(model.sectorId, model.code, model.nameNp, model.nameEn,model.disabled, model.approved,id));
-		if(rowEffect == 0) {
+		int rowEffect = db.executeUpdate(sql, Arrays.asList(model.sectorId, model.code, model.nameNp, model.nameEn,
+				model.disabled, model.approved, id));
+		if (rowEffect == 0) {
 			return Messenger.getMessenger().error();
-		}else {
+		} else {
 			return Messenger.getMessenger().success();
 		}
 	}
 
 	public Map<String, Object> destroy(String id) {
-		String sql ="DELETE from coactivity.sectorialActivity where saId=?";
-		int rowEffect = db.executeUpdate(sql,Arrays.asList(id));
+		String sql = "DELETE from coactivity.sectorialActivity where saId=?";
+		int rowEffect = db.executeUpdate(sql, Arrays.asList(id));
 		if (rowEffect == 0) {
 			return Messenger.getMessenger().setMessage("Invalid Request").error();
 		} else {
 			return Messenger.getMessenger().success();
 		}
 	}
+
 	public List<Map<String, String>> getSectorialActivities() {
 		List<Map<String, String>> data = new ArrayList<>();
 		String sql = "select saId,code,nameEn,nameNp from coactivity.sectorialActivity where approved=1 and disabled=0 ";
 		if (!document.getElementById("sectorId").value.isBlank()) {
 			sql += " and saId='" + (document.getElementById("sectorId").value).replace("'", "''") + "'";
 		}
-		
-		sql+="order by [CODE] Asc";
+
+		sql += "order by [CODE] Asc";
 		List<Tuple> tuples = db.getResultList(sql);
 		if (tuples != null) {
 			for (Tuple t : tuples) {
@@ -115,9 +118,8 @@ public class SectorialActivityService extends AutoService {
 				data.add(map);
 			}
 
-		
-	}
+		}
 		return data;
-	
-}
+
+	}
 }

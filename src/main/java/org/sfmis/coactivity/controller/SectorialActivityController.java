@@ -1,13 +1,8 @@
 package org.sfmis.coactivity.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.persistence.Tuple;
 import javax.servlet.http.HttpServletRequest;
-
-import org.sfmis.coactivity.model.Sector;
 import org.sfmis.coactivity.model.SectorialActivity;
 import org.sfmis.coactivity.service.SectorService;
 import org.sfmis.coactivity.service.SectorialActivityService;
@@ -42,12 +37,6 @@ public class SectorialActivityController {
 		return sas.index();
 	}
 
-	@GetMapping("create")
-	public void create(HttpServletRequest request) {
-
-		// to be defined
-	}
-
 	@PostMapping("")
 	public Map<String, Object> store(HttpServletRequest request) {
 		Validator validator = validationService.validate(SectorialActivity.rules());
@@ -58,21 +47,15 @@ public class SectorialActivityController {
 	}
 
 	@GetMapping("/{id}")
-	public void show(HttpServletRequest request, @PathVariable String id) {
-
-		// to be defined
-	}
-
-	@GetMapping("/{id}/edit")
 	public Map<String, Object> edit(HttpServletRequest request, @PathVariable String id) {
-		
+
 		return sas.edit(id);
 	}
 
 	@PutMapping("/{id}")
 	public Map<String, Object> update(HttpServletRequest request, @PathVariable String id) {
 		Validator validator = validationService.validate(SectorialActivity.rules());
-		if(validator.isFailed()) {
+		if (validator.isFailed()) {
 			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
 		} else {
 			return sas.update(id);
@@ -83,13 +66,12 @@ public class SectorialActivityController {
 	public Map<String, Object> destroy(HttpServletRequest request, @PathVariable String id) {
 		return sas.destroy(id);
 	}
-	
+
 	@GetMapping("/sectors")
 	public Map<String, Object> sector() {
 		List<Map<String, String>> data = sService.getSectors();
 		return Messenger.getMessenger().setData(data).success();
-		
+
 	}
-	
+
 }
-	

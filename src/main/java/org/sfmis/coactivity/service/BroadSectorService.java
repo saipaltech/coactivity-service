@@ -58,10 +58,6 @@ public class BroadSectorService extends AutoService {
 
 	}
 
-	public void create() {
-
-	}
-
 	public Map<String, Object> store() {
 		BroadSector broadSector = new BroadSector();
 		broadSector.loadData(document);
@@ -75,10 +71,6 @@ public class BroadSectorService extends AutoService {
 		} else {
 			return Messenger.getMessenger().success();
 		}
-
-	}
-
-	public void show(String id) {
 
 	}
 

@@ -21,52 +21,44 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("coactivity/sector-heading")
 public class SectorialHeadingController {
-	
+
 	@Autowired
 	SectorialHeadingService shs;
 	@Autowired
 	ValidationService validationService;
-	
+
 	@GetMapping("")
 	public Map<String, Object> index(HttpServletRequest request) {
 		return shs.index();
 	}
-	@GetMapping("create")
-	public void create(HttpServletRequest request) {
 
-		// to be defined
-	}
-	
 	@PostMapping("")
 	public Map<String, Object> store(HttpServletRequest request) {
 		Validator validator = validationService.validate(SectorialHeading.rules());
-		if(validator.isFailed()) {
+		if (validator.isFailed()) {
 			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
 		}
 		return shs.store();
-		
-	}
-	@GetMapping("/{id}")
-	public void show(HttpServletRequest request, @PathVariable String id) {
 
-		// to be defined
 	}
-	@GetMapping("/{id}/edit")
+
+	@GetMapping("/{id}")
 	public Map<String, Object> edit(HttpServletRequest request, @PathVariable String id) {
 		return shs.edit(id);
-		
+
 	}
-	
+
 	@PutMapping("/{id}")
 	public Map<String, Object> update(HttpServletRequest request, @PathVariable String id) {
 		Validator validator = validationService.validate(SectorialHeading.rules());
-		if(validator.isFailed()) {
+		if (validator.isFailed()) {
 			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
 		} else {
 			return shs.update(id);
 		}
-		
+
 	}
+
 	@DeleteMapping("/{id}")
 	public Map<String, Object> destroy(HttpServletRequest request, @PathVariable String id) {
 		return shs.destroy(id);
