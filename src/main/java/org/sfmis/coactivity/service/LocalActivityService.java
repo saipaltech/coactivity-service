@@ -10,10 +10,12 @@ import javax.persistence.Tuple;
 import org.sfmis.coactivity.auth.Authenticated;
 import org.sfmis.coactivity.model.LocalActivity;
 import org.sfmis.coactivity.util.DB;
+import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 public class LocalActivityService extends AutoService {
@@ -57,10 +59,11 @@ public class LocalActivityService extends AutoService {
 	public Map<String, Object> store() {
 		LocalActivity model = new LocalActivity();
 		model.loadData(document);
+
 		String sql = "INSERT INTO coactivity.localActivity(laId, activityId, adminId, lmOrgId, code, nameNp, nameEn, disabled, enterBy, enteryDate, approved) VALUES (dbo.newidint(),?,?,?,?,?,?,?,?,GETDATE(),?)";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(model.activityId, model.adminId, model.lmOrgId, model.code,
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.activityId, model.adminId, model.lmOrgId, model.code,
 				model.nameNp, model.nameEn, model.disabled, auth.getUserId(), model.approved));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -83,9 +86,9 @@ public class LocalActivityService extends AutoService {
 		LocalActivity model = new LocalActivity();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.localActivity set activityId =?, adminId=?, lmOrgId =?, code=?, nameNp=?, nameEn=?, disabled=?,approved=? where laId=?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(model.activityId, model.adminId, model.lmOrgId, model.code,
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.activityId, model.adminId, model.lmOrgId, model.code,
 				model.nameNp, model.nameEn, model.disabled, model.approved, id));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -95,8 +98,8 @@ public class LocalActivityService extends AutoService {
 
 	public Map<String, Object> destroy(String id) {
 		String sql = "DELETE from coactivity.localActivity where  laId=?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(id));
-		if (rowEffect == 0) {
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().setMessage("Invalid Request").error();
 		} else {
 			return Messenger.getMessenger().success();

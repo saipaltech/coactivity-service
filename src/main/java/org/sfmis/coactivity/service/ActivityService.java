@@ -11,6 +11,7 @@ import javax.persistence.Tuple;
 import org.sfmis.coactivity.auth.Authenticated;
 import org.sfmis.coactivity.model.Activity;
 import org.sfmis.coactivity.util.DB;
+import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,10 +54,10 @@ public class ActivityService extends AutoService {
 		model.loadData(document);
 
 		String sql = "INSERT INTO  coactivity.activity(activityId, centralActivityId, code, nameEn, nameNp, descEn, descNp, cofog, disabled, enterBy, entryDate, approved) VALUES(dbo.newidint(),?,?,?,?,?,?,?,?,?,GETDATE(),?)";
-		int rowEffect = db.executeUpdate(sql,
+		DbResponse rowEffect = db.execute(sql,
 				Arrays.asList(model.centralActivityId, model.code, model.nameEn, model.nameNp, model.descEn,
 						model.descNp, model.cofog, model.disabled, auth.getUserId(), model.approved));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber()  == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -79,8 +80,8 @@ public class ActivityService extends AutoService {
 		Activity model = new Activity();
 		model.loadData(document);
 		String sql ="UPDATE coactivity.activity set centralActivityId=?, code=?, nameEn=?, nameNp=?, descEn=?, descNp=?, cofog=?, disabled=?, approved=? where activityId=?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(model.centralActivityId, model.code, model.nameEn, model.nameNp, model.descEn, model.descNp, model.cofog, model.disabled, model.approved,id));
-		if(rowEffect == 0) {
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.centralActivityId, model.code, model.nameEn, model.nameNp, model.descEn, model.descNp, model.cofog, model.disabled, model.approved,id));
+		if(rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -89,8 +90,8 @@ public class ActivityService extends AutoService {
 
 	public Map<String, Object> destroy(String id) {
 		String sql ="DELETE from coactivity.activity where activityId =?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(id));
-		if (rowEffect == 0) {
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().setMessage("Invalid Request").error();
 		} else {
 			return Messenger.getMessenger().success();

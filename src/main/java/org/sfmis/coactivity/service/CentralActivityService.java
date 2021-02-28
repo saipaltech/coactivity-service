@@ -11,6 +11,7 @@ import javax.persistence.Tuple;
 import org.sfmis.coactivity.auth.Authenticated;
 import org.sfmis.coactivity.model.CentralActivity;
 import org.sfmis.coactivity.util.DB;
+import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,9 +54,9 @@ public class CentralActivityService extends AutoService {
 		model.loadData(document);
 
 		String sql = "INSERT INTO coactivity.centralActivity(caId, sectorialActivityId, code, nameNp, nameEn, disabled, enterBy, entryDate, approved ) VALUES(dbo.newidint(),?,?,?,?,?,?,GETDATE(),?)";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(model.sectorialActivityId, model.code, model.nameNp,
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.sectorialActivityId, model.code, model.nameNp,
 				model.nameEn, model.disabled, auth.getUserId(), model.approved));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 
 		} else {
@@ -79,9 +80,9 @@ public class CentralActivityService extends AutoService {
 		CentralActivity model = new CentralActivity();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.centralActivity set SectorialActivityId=?, code=?, nameNp=?, nameEn=?, disabled=?, approved=? where caId=?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(model.sectorialActivityId, model.code, model.nameNp,
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.sectorialActivityId, model.code, model.nameNp,
 				model.nameEn, model.disabled, model.approved, id));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -91,8 +92,8 @@ public class CentralActivityService extends AutoService {
 
 	public Map<String, Object> destroy(String id) {
 		String sql = "DELETE from coactivity.centralActivity where caId=?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(id));
-		if (rowEffect == 0) {
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().setMessage("Invalid Request").error();
 		} else {
 			return Messenger.getMessenger().success();

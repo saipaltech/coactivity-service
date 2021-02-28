@@ -11,6 +11,7 @@ import javax.persistence.Tuple;
 import org.sfmis.coactivity.auth.Authenticated;
 import org.sfmis.coactivity.model.BroadSector;
 import org.sfmis.coactivity.util.DB;
+import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,9 +64,9 @@ public class BroadSectorService extends AutoService {
 		broadSector.loadData(document);
 
 		String sql = "INSERT INTO coactivity.broadSector(broadSectorId, code, nameNp, nameEn, disabled, enterBy, entryDate, approved) VALUES (dbo.newidint(),?,?,?,?,?,GETDATE(),?)";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(broadSector.code, broadSector.nameNp, broadSector.nameEn,
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(broadSector.code, broadSector.nameNp, broadSector.nameEn,
 				broadSector.disabled, auth.getUserId(), broadSector.approved));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 
 			return Messenger.getMessenger().error();
 		} else {
@@ -89,9 +90,9 @@ public class BroadSectorService extends AutoService {
 		BroadSector model = new BroadSector();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.broadSector set code=?, nameNp=?, nameEn=?, disabled=?, approved=? where broadSectorId=?";
-		int rowEffect = db.executeUpdate(sql,
+		DbResponse rowEffect = db.execute(sql,
 				Arrays.asList(model.code, model.nameNp, model.nameEn, model.disabled, model.approved, id));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -100,8 +101,8 @@ public class BroadSectorService extends AutoService {
 
 	public Map<String, Object> destroy(String id) {
 		String sql = "DELETE from coactivity.broadSector where  broadSectorId=?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(id));
-		if (rowEffect == 0) {
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().setMessage("Invalid Request").error();
 		} else {
 			return Messenger.getMessenger().success();

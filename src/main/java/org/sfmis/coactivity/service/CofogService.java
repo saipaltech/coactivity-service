@@ -11,6 +11,7 @@ import javax.persistence.Tuple;
 import org.sfmis.coactivity.auth.Authenticated;
 import org.sfmis.coactivity.model.Cofog;
 import org.sfmis.coactivity.util.DB;
+import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,12 +55,12 @@ public class CofogService extends AutoService {
 		model.loadData(document);
 
 		String sql = "INSERT INTO coactivity.cofog(cofogId, parentId, code, nameEn,nameNp, descriptionNp, descriptionEn, orders, levels, keys, keyNumber, disabled, enterBy, entryDate, approved) VALUES (dbo.newidint(),?,?,?,?,?,?,?,?,?,?,?,?,GETDATE(),?)";
-		int rowEffect = db.executeUpdate(sql,
+		DbResponse rowEffect = db.execute(sql,
 				Arrays.asList(model.parentId, model.code, model.nameEn, model.nameNp, model.descriptionNp,
 						model.descriptionEn, model.orders, model.levels, model.keys, model.keyNumber, model.disabled,
 						auth.getUserId(), model.approved));
 
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -81,11 +82,11 @@ public class CofogService extends AutoService {
 		Cofog model = new Cofog();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.cofog set parentId=?, code=?, nameEn=?, nameNp=?, descriptionNp=?, descriptionEn=?, orders=?, levels=?, keys=?,keyNumber=?, disabled=?, approved=? where cofogId=?";
-		int rowEffect = db.executeUpdate(sql,
+		DbResponse rowEffect = db.execute(sql,
 				Arrays.asList(model.parentId, model.code, model.nameEn, model.nameNp, model.descriptionNp,
 						model.descriptionEn, model.orders, model.levels, model.keys, model.keyNumber, model.disabled,
 						model.approved, id));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -94,8 +95,8 @@ public class CofogService extends AutoService {
 
 	public Map<String, Object> destroy(String id) {
 		String sql = "DELETE from coactivity.cofog where cofogId=?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(id));
-		if (rowEffect == 0) {
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().setMessage("Invalid Requst").error();
 		} else {
 			return Messenger.getMessenger().success();

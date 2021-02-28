@@ -10,6 +10,7 @@ import javax.persistence.Tuple;
 import org.sfmis.coactivity.auth.Authenticated;
 import org.sfmis.coactivity.model.SectorialHeading;
 import org.sfmis.coactivity.util.DB;
+import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,10 +52,10 @@ public class SectorialHeadingService extends AutoService {
 		SectorialHeading model = new SectorialHeading();
 		model.loadData(document);
 		String sql = "INSERT INTO coactivity.sectorialHeading(id, adminLevel, adminId, sectorId, code, parentId, nameNp,nameEn, keys, keyNumber, disabled, enterby, entrydate, approved ) VALUES(dbo.newidint(),?,?,?,?,?,?,?,?,?,?,?,GETDATE(),?)";
-		int rowEffect = db.executeUpdate(sql,
+		DbResponse rowEffect = db.execute(sql,
 				Arrays.asList(model.adminLevel, model.adminId, model.sectorId, model.code, model.parentId, model.nameNp,
 						model.nameEn, model.keys, model.keyNumber, model.disabled, auth.getUserId(), model.approved));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -77,10 +78,10 @@ public class SectorialHeadingService extends AutoService {
 		SectorialHeading model = new SectorialHeading();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.sectorialHeading set adminLevel=?, adminId=?, sectorId=?, code=?, parentId=?, nameNp=?,nameEn=?, keys=?, keyNumber=?, disabled=?, approved=? where id=?";
-		int rowEffect = db.executeUpdate(sql,
+		DbResponse rowEffect = db.execute(sql,
 				Arrays.asList(model.adminLevel, model.adminId, model.sectorId, model.code, model.parentId, model.nameNp,
 						model.nameEn, model.keys, model.keyNumber, model.disabled, model.approved, id));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 0) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -89,8 +90,8 @@ public class SectorialHeadingService extends AutoService {
 
 	public Map<String, Object> destroy(String id) {
 		String sql = "DELETE from coactivity.sectorialHeading where id=?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(id));
-		if (rowEffect == 0) {
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().setMessage("Invalid Request").error();
 		} else {
 			return Messenger.getMessenger().success();

@@ -23,12 +23,5 @@ public class CoactivityServiceApplication extends SpringBootServletInitializer {
 		return application.sources(CoactivityServiceApplication.class);
 	}
 	
-	@Bean
-	@LoadBalanced
-	public RestTemplate restTemplate()
-	{
-		return new RestTemplate();
-		
-	}
 
 }

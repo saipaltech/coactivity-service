@@ -11,7 +11,6 @@ import javax.persistence.Tuple;
 import javax.transaction.Transactional;
 
 import org.hibernate.Session;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -100,7 +99,8 @@ public class DB {
 	 */
 
 	@Transactional
-	public int executeUpdate(String sql, List<?> args) {
+	public DbResponse execute(String sql, List<Object> args) {
+		DbResponse dbResp = new DbResponse();
 		try {
 			LOG.info(dumpQuery(sql, args));
 			Query qry = em.createNativeQuery(sql);
@@ -110,11 +110,14 @@ public class DB {
 				}
 			}
 			int dt = qry.executeUpdate();
-			return dt;
-		} catch (Exception e) {
-			LOG.info("On Execute Update query: " + e.getMessage());
+			dbResp.setRows(dt);
+			dbResp.setErrorNumber(0);
+		}catch (Exception e) {
+			dbResp.setRows(0);
+			dbResp.setErrorNumber(1);
+			dbResp.setMessage(e.getMessage());
 		}
-		return -1;
+		return dbResp;
 	}
 
 	/**
@@ -125,14 +128,13 @@ public class DB {
 	 * @param params List of argument, each value is another list that passed as
 	 *               arguement in sql
 	 */
-	public int executeUpdateBulk(String sql, List<List<Object>> params) {
+	public DbResponse executeBulk(String sql, List<List<Object>> params) {
 		Session hibernateSession = em.unwrap(Session.class);
 		/*
 		 * params.forEach(p->{ LOG.info(dumpQuery(sql, p)); });
 		 */
-		var ordinal = new Object() {
-			int value = 0;
-		};
+		
+		DbResponse dbResp = new DbResponse();
 		hibernateSession.doWork(connection -> {
 			try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
 				for (List<Object> param : params) {
@@ -145,12 +147,15 @@ public class DB {
 					preparedStatement.addBatch();
 				}
 				int[] rs = preparedStatement.executeBatch();
-				ordinal.value = rs.length;
+				dbResp.setRows(rs.length);
+				dbResp.setErrorNumber(0);
 			} catch (SQLException e) {
+				dbResp.setRows(0);
+				dbResp.setErrorNumber(1);
 				e.printStackTrace();
 			}
 		});
-		return ordinal.value;
+		return dbResp;
 	}
 
 	/**
@@ -161,8 +166,8 @@ public class DB {
 	 *         successful, else contains error message in "error" key
 	 */
 	@Transactional
-	public int executeUpdate(String sql) {
-		return executeUpdate(sql, null);
+	public DbResponse execute(String sql) {
+		return execute(sql, null);
 	}
 
 	/**
@@ -211,11 +216,9 @@ public class DB {
 	 * @param sqlList
 	 * @param argList
 	 */
-	public void executeUpdateMultiple(List<String> sqlList, List<List<Object>> argList) {
+	public DbResponse execute(List<String> sqlList, List<List<Object>> argList) {
 		Session hibernateSession = em.unwrap(Session.class);
-		var ordinal = new Object() {
-			int value = 0;
-		};
+		DbResponse dbResp = new DbResponse();
 		hibernateSession.doWork(connection -> {
 			for (String sql : sqlList) {
 				int i = 0;
@@ -230,12 +233,17 @@ public class DB {
 					preparedStatement.addBatch();
 					int[] rs = preparedStatement.executeBatch();
 					i++;
-					ordinal.value += rs.length;
+					dbResp.setRows(dbResp.getRows() + rs.length);
+					dbResp.setErrorNumber(0);
 				} catch (SQLException e) {
+					dbResp.setRows(0);
+					dbResp.setErrorNumber(1);
+					dbResp.setMessage(e.getMessage());
 					e.printStackTrace();
 				}
 			}
 		});
+		return dbResp;
 	}
 
 }

@@ -11,6 +11,7 @@ import javax.persistence.Tuple;
 import org.sfmis.coactivity.auth.Authenticated;
 import org.sfmis.coactivity.model.Sector;
 import org.sfmis.coactivity.util.DB;
+import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,11 +59,11 @@ public class SectorService extends AutoService {
 		sector.loadData(document);
 
 		String sql = "INSERT INTO coactivity.sector(sectorId, broadSectorId, code, nameEn, nameNp, prioritySector, central, province, local, disabled, enterBy, entryDate, approved) VALUES (dbo.newidint(),?,?,?,?,?,?,?,?,?,?,GETDATE(),?)";
-		int rowEffect = db.executeUpdate(sql,
+		DbResponse rowEffect = db.execute(sql,
 				Arrays.asList(sector.broadSectorId, sector.code, sector.nameEn, sector.nameNp, sector.prioritySector,
 						sector.central, sector.province, sector.local, sector.disabled, auth.getUserId(),
 						sector.approved));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -85,9 +86,9 @@ public class SectorService extends AutoService {
 		Sector model = new Sector();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.sector set broadSectorId=?, code=?, nameEn=?, nameNp=?, prioritySector=?, central=?, province=?, local=?, disabled=?,  approved=? where sectorId=?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(model.broadSectorId, model.code, model.nameEn, model.nameNp,
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.broadSectorId, model.code, model.nameEn, model.nameNp,
 				model.prioritySector, model.central, model.province, model.local, model.disabled, model.approved, id));
-		if (rowEffect == 0) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -97,8 +98,8 @@ public class SectorService extends AutoService {
 
 	public Map<String, Object> destroy(String id) {
 		String sql = "DELETE from coactivity.sector where sectorId=?";
-		int rowEffect = db.executeUpdate(sql, Arrays.asList(id));
-		if (rowEffect == 0) {
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().setMessage("Invalid Request").error();
 		} else {
 			return Messenger.getMessenger().success();
