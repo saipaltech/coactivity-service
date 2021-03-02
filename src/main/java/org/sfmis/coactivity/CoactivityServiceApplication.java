@@ -24,4 +24,8 @@ public class CoactivityServiceApplication extends SpringBootServletInitializer {
 	}
 	
 
+	
+	
+	
+
 }

@@ -15,6 +15,7 @@ import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -28,7 +29,7 @@ public class ActivityService extends AutoService {
 	@Autowired
 	ValidationService validationService;
 
-	public Map<String, Object> index() {
+	public ResponseEntity<Map<String, Object>> index() {
 		int perPage = (request("rows") == null | (request("rows")).isBlank()) ? 10 : Integer.parseInt(request("rows"));
 		int page = (request("page") == null | (request("page")).isBlank()) ? 1 : Integer.parseInt(request("page"));
 		if (perPage > 100) {
@@ -49,7 +50,7 @@ public class ActivityService extends AutoService {
 		return Messenger.getMessenger().setData(result).success();
 	}
 
-	public Map<String, Object> store() {
+	public ResponseEntity<Map<String, Object>> store() {
 		Activity model = new Activity();
 		model.loadData(document);
 
@@ -66,7 +67,7 @@ public class ActivityService extends AutoService {
 	}
 
 
-	public Map<String, Object> edit(String id) {
+	public ResponseEntity<Map<String, Object>> edit(String id) {
 		String sql ="SELECT activityId, centralActivityId, code, nameEn, nameNp, descEn, descNp, cofog, disabled, enterBy, entryDate,approved from coactivity.activity where activityId=? for json auto";
 		Tuple result = db.getSingleResult(sql, Arrays.asList(id));
 		if(result == null) {
@@ -76,7 +77,7 @@ public class ActivityService extends AutoService {
 		}
 	}
 
-	public Map<String, Object> update(String id) {
+	public ResponseEntity<Map<String, Object>> update(String id) {
 		Activity model = new Activity();
 		model.loadData(document);
 		String sql ="UPDATE coactivity.activity set centralActivityId=?, code=?, nameEn=?, nameNp=?, descEn=?, descNp=?, cofog=?, disabled=?, approved=? where activityId=?";
@@ -88,7 +89,7 @@ public class ActivityService extends AutoService {
 		}
 	}
 
-	public Map<String, Object> destroy(String id) {
+	public ResponseEntity<Map<String, Object>> destroy(String id) {
 		String sql ="DELETE from coactivity.activity where activityId =?";
 		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
 		if (rowEffect.getErrorNumber() == 1) {

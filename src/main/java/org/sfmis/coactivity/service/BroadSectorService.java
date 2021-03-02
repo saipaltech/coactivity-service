@@ -15,6 +15,7 @@ import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -36,7 +37,7 @@ public class BroadSectorService extends AutoService {
 
 	}
 
-	public Map<String, Object> index() {
+	public ResponseEntity<Map<String, Object>> index() {
 
 		int perPage = (request("rows") == null | (request("rows")).isBlank()) ? 10 : Integer.parseInt(request("rows"));
 		int page = (request("page") == null | (request("page")).isBlank()) ? 1 : Integer.parseInt(request("page"));
@@ -59,7 +60,7 @@ public class BroadSectorService extends AutoService {
 
 	}
 
-	public Map<String, Object> store() {
+	public ResponseEntity<Map<String, Object>> store() {
 		BroadSector broadSector = new BroadSector();
 		broadSector.loadData(document);
 
@@ -75,7 +76,7 @@ public class BroadSectorService extends AutoService {
 
 	}
 
-	public Map<String, Object> edit(String id) {
+	public ResponseEntity<Map<String, Object>> edit(String id) {
 		String sql = "select broadSectorId, code, nameNp, nameEn, disabled, enterBy, entryDate, approved from coactivity.broadSector where broadSectorId = ? for json auto";
 		Tuple result = db.getSingleResult(sql, Arrays.asList(id));
 		if (result == null) {
@@ -86,7 +87,7 @@ public class BroadSectorService extends AutoService {
 
 	}
 
-	public Map<String, Object> update(String id) {
+	public ResponseEntity<Map<String, Object>> update(String id) {
 		BroadSector model = new BroadSector();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.broadSector set code=?, nameNp=?, nameEn=?, disabled=?, approved=? where broadSectorId=?";
@@ -99,7 +100,7 @@ public class BroadSectorService extends AutoService {
 		}
 	}
 
-	public Map<String, Object> destroy(String id) {
+	public ResponseEntity<Map<String, Object>> destroy(String id) {
 		String sql = "DELETE from coactivity.broadSector where  broadSectorId=?";
 		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
 		if (rowEffect.getErrorNumber() == 1) {

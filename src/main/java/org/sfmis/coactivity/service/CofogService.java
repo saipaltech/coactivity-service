@@ -15,6 +15,7 @@ import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -29,7 +30,7 @@ public class CofogService extends AutoService {
 	@Autowired
 	ValidationService validationService;
 
-	public Map<String, Object> index() {
+	public ResponseEntity<Map<String, Object>> index() {
 		int perPage = (request("rows") == null | (request("rows")).isBlank()) ? 10 : Integer.parseInt(request("rows"));
 		int page = (request("page") == null | (request("page")).isBlank()) ? 1 : Integer.parseInt(request("page"));
 		if (perPage > 100) {
@@ -50,7 +51,7 @@ public class CofogService extends AutoService {
 		return Messenger.getMessenger().setData(result).success();
 	}
 
-	public Map<String, Object> store() {
+	public ResponseEntity<Map<String, Object>> store() {
 		Cofog model = new Cofog();
 		model.loadData(document);
 
@@ -67,7 +68,7 @@ public class CofogService extends AutoService {
 		}
 	}
 
-	public Map<String, Object> edit(String id) {
+	public ResponseEntity<Map<String, Object>> edit(String id) {
 		String sql = "select cofogId, parentId, code, nameEn, nameNp, descriptionNp, descriptionEn, orders, levels, keys,keyNumber, disabled, approved from coactivity.cofog where cofogId = ? for json auto";
 		Tuple result = db.getSingleResult(sql, Arrays.asList(id));
 		if (result == null) {
@@ -78,7 +79,7 @@ public class CofogService extends AutoService {
 
 	}
 
-	public Map<String, Object> update(String id) {
+	public ResponseEntity<Map<String, Object>> update(String id) {
 		Cofog model = new Cofog();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.cofog set parentId=?, code=?, nameEn=?, nameNp=?, descriptionNp=?, descriptionEn=?, orders=?, levels=?, keys=?,keyNumber=?, disabled=?, approved=? where cofogId=?";
@@ -93,7 +94,7 @@ public class CofogService extends AutoService {
 		}
 	}
 
-	public Map<String, Object> destroy(String id) {
+	public ResponseEntity<Map<String, Object>> destroy(String id) {
 		String sql = "DELETE from coactivity.cofog where cofogId=?";
 		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
 		if (rowEffect.getErrorNumber() == 1) {

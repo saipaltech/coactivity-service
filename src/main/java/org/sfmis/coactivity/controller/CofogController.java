@@ -11,6 +11,7 @@ import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.sfmis.coactivity.util.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,12 +31,12 @@ public class CofogController {
 	ValidationService validationService;
 
 	@GetMapping("")
-	public Map<String, Object> index(HttpServletRequest request) {
+	public ResponseEntity<Map<String, Object>> index(HttpServletRequest request) {
 		return cs.index();
 	}
 
 	@PostMapping("")
-	public Map<String, Object> store(HttpServletRequest request) {
+	public ResponseEntity<Map<String, Object>> store(HttpServletRequest request) {
 		Validator validator = validationService.validate(Cofog.rules());
 		if (validator.isFailed()) {
 			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
@@ -44,13 +45,13 @@ public class CofogController {
 	}
 
 	@GetMapping("/{id}")
-	public Map<String, Object> edit(HttpServletRequest request, @PathVariable String id) {
+	public ResponseEntity<Map<String, Object>> edit(HttpServletRequest request, @PathVariable String id) {
 
 		return cs.edit(id);
 	}
 
 	@PutMapping("/{id}")
-	public Map<String, Object> update(HttpServletRequest request, @PathVariable String id) {
+	public ResponseEntity<Map<String, Object>> update(HttpServletRequest request, @PathVariable String id) {
 		Validator validator = validationService.validate(Cofog.rules());
 		if (validator.isFailed()) {
 			return Messenger.getMessenger().setData(validator.getErrorMessages()).error();
@@ -60,7 +61,7 @@ public class CofogController {
 	}
 
 	@DeleteMapping("/{id}")
-	public Map<String, Object> destroy(HttpServletRequest request, @PathVariable String id) {
+	public ResponseEntity<Map<String, Object>> destroy(HttpServletRequest request, @PathVariable String id) {
 		return cs.destroy(id);
 	}
 

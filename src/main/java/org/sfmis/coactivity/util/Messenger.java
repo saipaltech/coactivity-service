@@ -1,67 +1,71 @@
 package org.sfmis.coactivity.util;
 
-
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 public class Messenger {
 
 	private Map<String, Object> info = new HashMap<>();
-	
+
 	public static Messenger getMessenger() {
 		return (new Messenger());
 	}
-	
+
 	public Messenger setMessage(String message) {
 		info.put("message", message);
 		return this;
 	}
-	
+
 	public Messenger setData(Object data) {
 		info.put("data", data);
 		return this;
 	}
-	
+
 	public Messenger setStatus(int status) {
 		info.put("status", status);
 		return this;
 	}
-	
 
-	public Map<String, Object> success() {
+	public ResponseEntity<Map<String, Object>> success() {
 		setStatus(1);
-		if(info.get("message") == null) {
+		if (info.get("message") == null) {
 			setMessage("Operation Successful.");
 		}
-		return info;
+		return ResponseEntity.ok(info);
 	}
-	
-	public Map<String, Object> error() {
+
+	public ResponseEntity<Map<String, Object>> error() {
 		setStatus(0);
-		if(info.get("message") == null) {
+		if (info.get("message") == null) {
 			setMessage("Operation Failed.");
 		}
-		return info;
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(info);
 	}
-	
-	public Map<String, Object> info() {
+
+	private Map<String, Object> info() {
 		setStatus(3);
-		if(info.get("message") == null) {
+		if (info.get("message") == null) {
 			setMessage("Operation Successful.");
 		}
 		return info;
 	}
-	
-	public Map<String, Object> warning() {
+
+	private Map<String, Object> warning() {
 		setStatus(2);
-		if(info.get("message") == null) {
+		if (info.get("message") == null) {
 			setMessage("Operation succeeded with warning.");
 		}
 		return info;
 	}
-	
-	public Map<String, Object> getMessage() {
-		return info;
+
+	public ResponseEntity<Map<String, Object>> getMessage() {
+		HttpStatus status = HttpStatus.OK;
+		if ((int) info.get("status") == 0) {
+			status = HttpStatus.INTERNAL_SERVER_ERROR;
+		}
+		return ResponseEntity.status(status).body(info);
 	}
 }

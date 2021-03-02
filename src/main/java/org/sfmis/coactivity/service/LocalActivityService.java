@@ -14,6 +14,7 @@ import org.sfmis.coactivity.util.DbResponse;
 import org.sfmis.coactivity.util.Messenger;
 import org.sfmis.coactivity.util.ValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,6 +28,7 @@ public class LocalActivityService extends AutoService {
 
 	@Autowired
 	ValidationService validationService;
+	
 
 	public Map<String, String> rules() {
 		Map<String, String> rules = new HashMap<>();
@@ -35,7 +37,7 @@ public class LocalActivityService extends AutoService {
 
 	}
 
-	public Map<String, Object> index() {
+	public ResponseEntity<Map<String, Object>> index() {
 		int perPage = (request("rows") == null | (request("rows")).isBlank()) ? 10 : Integer.parseInt(request("rows"));
 		int page = (request("page") == null | (request("page")).isBlank()) ? 1 : Integer.parseInt(request("page"));
 		if (perPage > 100) {
@@ -56,9 +58,10 @@ public class LocalActivityService extends AutoService {
 		return Messenger.getMessenger().setData(result).success();
 	}
 
-	public Map<String, Object> store() {
+	public ResponseEntity<Map<String, Object>> store() {
 		LocalActivity model = new LocalActivity();
 		model.loadData(document);
+	
 
 		String sql = "INSERT INTO coactivity.localActivity(laId, activityId, adminId, lmOrgId, code, nameNp, nameEn, disabled, enterBy, enteryDate, approved) VALUES (dbo.newidint(),?,?,?,?,?,?,?,?,GETDATE(),?)";
 		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.activityId, model.adminId, model.lmOrgId, model.code,
@@ -71,7 +74,7 @@ public class LocalActivityService extends AutoService {
 
 	}
 
-	public Map<String, Object> edit(String id) {
+	public ResponseEntity<Map<String, Object>> edit(String id) {
 		String sql = "SELECT laId, activityId, adminId, lmOrgId, code, nameNp, nameEn, disabled, enterBy, enteryDate, approved from coactivity.localActivity where laId=? for json auto";
 		Tuple result = db.getSingleResult(sql, Arrays.asList(id));
 		if (result == null) {
@@ -82,7 +85,7 @@ public class LocalActivityService extends AutoService {
 
 	}
 
-	public Map<String, Object> update(String id) {
+	public ResponseEntity<Map<String, Object>> update(String id) {
 		LocalActivity model = new LocalActivity();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.localActivity set activityId =?, adminId=?, lmOrgId =?, code=?, nameNp=?, nameEn=?, disabled=?,approved=? where laId=?";
@@ -96,7 +99,7 @@ public class LocalActivityService extends AutoService {
 
 	}
 
-	public Map<String, Object> destroy(String id) {
+	public ResponseEntity<Map<String, Object>> destroy(String id) {
 		String sql = "DELETE from coactivity.localActivity where  laId=?";
 		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
 		if (rowEffect.getErrorNumber() == 1) {
