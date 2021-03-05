@@ -95,12 +95,16 @@ public class CofogService extends AutoService {
 	}
 
 	public ResponseEntity<Map<String, Object>> destroy(String id) {
-		String sql = "DELETE from coactivity.cofog where cofogId=?";
-		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
-		if (rowEffect.getErrorNumber() == 1) {
-			return Messenger.getMessenger().setMessage("Invalid Requst").error();
+		if (!isBeingUsed("coactivity.cofog", id)) {
+			String sql = "DELETE from coactivity.cofog where cofogId=?";
+			DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+			if (rowEffect.getErrorNumber() == 1) {
+				return Messenger.getMessenger().setMessage("Invalid Requst").error();
+			} else {
+				return Messenger.getMessenger().success();
+			}
 		} else {
-			return Messenger.getMessenger().success();
+			return Messenger.getMessenger().setMessage("Deletion not Allowed").error();
 		}
 
 	}

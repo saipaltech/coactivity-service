@@ -92,12 +92,16 @@ public class CentralActivityService extends AutoService {
 	}
 
 	public ResponseEntity<Map<String, Object>> destroy(String id) {
+		if(!isBeingUsed("coactivity.centralActivity", id)) {
 		String sql = "DELETE from coactivity.centralActivity where caId=?";
 		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
 		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().setMessage("Invalid Request").error();
 		} else {
 			return Messenger.getMessenger().success();
+		}
+		} else {
+			return Messenger.getMessenger().setMessage("Deletion Not Allowed").error();
 		}
 
 	}

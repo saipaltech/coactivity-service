@@ -9,6 +9,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
 
+
 @SpringBootApplication
 @EnableEurekaClient
 public class CoactivityServiceApplication extends SpringBootServletInitializer {
@@ -23,8 +24,11 @@ public class CoactivityServiceApplication extends SpringBootServletInitializer {
 		return application.sources(CoactivityServiceApplication.class);
 	}
 	
-
-	
+	@Bean
+	@LoadBalanced
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
 	
 	
 

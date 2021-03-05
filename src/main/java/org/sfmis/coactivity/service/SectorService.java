@@ -30,8 +30,6 @@ public class SectorService extends AutoService {
 	@Autowired
 	ValidationService validationService;
 
-
-
 	public ResponseEntity<Map<String, Object>> index() {
 		int perPage = (request("rows") == null | (request("rows")).isBlank()) ? 10 : Integer.parseInt(request("rows"));
 		int page = (request("page") == null | (request("page")).isBlank()) ? 1 : Integer.parseInt(request("page"));
@@ -53,7 +51,6 @@ public class SectorService extends AutoService {
 		return Messenger.getMessenger().setData(result).success();
 
 	}
-
 
 	public ResponseEntity<Map<String, Object>> store() {
 		Sector sector = new Sector();
@@ -87,8 +84,9 @@ public class SectorService extends AutoService {
 		Sector model = new Sector();
 		model.loadData(document);
 		String sql = "UPDATE coactivity.sector set broadSectorId=?, code=?, nameEn=?, nameNp=?, prioritySector=?, central=?, province=?, local=?, disabled=?,  approved=? where sectorId=?";
-		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.broadSectorId, model.code, model.nameEn, model.nameNp,
-				model.prioritySector, model.central, model.province, model.local, model.disabled, model.approved, id));
+		DbResponse rowEffect = db.execute(sql,
+				Arrays.asList(model.broadSectorId, model.code, model.nameEn, model.nameNp, model.prioritySector,
+						model.central, model.province, model.local, model.disabled, model.approved, id));
 		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
@@ -98,23 +96,19 @@ public class SectorService extends AutoService {
 	}
 
 	public ResponseEntity<Map<String, Object>> destroy(String id) {
-		String sql = "DELETE from coactivity.sector where sectorId=?";
-		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
-		if (rowEffect.getErrorNumber() == 1) {
-			return Messenger.getMessenger().setMessage("Invalid Request").error();
+		if (!isBeingUsed("coactivity.sector", id)) {
+			String sql = "DELETE from coactivity.sector where sectorId=?";
+			DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+			if (rowEffect.getErrorNumber() == 1) {
+				return Messenger.getMessenger().setMessage("Invalid Request").error();
+			} else {
+				return Messenger.getMessenger().success();
+			}
 		} else {
-			return Messenger.getMessenger().success();
+			return Messenger.getMessenger().setMessage("Deletion not Allowed").error();
 		}
 
 	}
-
-	/*
-	 * public List<Tuple> getSectors() { String sql =
-	 * "select sectorId,code,nameEn from coactivity.sector where approved=1 and disabled=0 order by [CODE] Asc"
-	 * ;
-	 * 
-	 * List<Tuple> tuples = db.getResultList(sql); return tuples; }
-	 */
 
 	public List<Map<String, String>> getSectors() {
 		List<Map<String, String>> data = new ArrayList<>();

@@ -90,12 +90,16 @@ public class SectorialHeadingService extends AutoService {
 	}
 
 	public ResponseEntity<Map<String, Object>> destroy(String id) {
-		String sql = "DELETE from coactivity.sectorialHeading where id=?";
-		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
-		if (rowEffect.getErrorNumber() == 1) {
-			return Messenger.getMessenger().setMessage("Invalid Request").error();
+		if (!isBeingUsed("coactivity.sectorialHeading", id)) {
+			String sql = "DELETE from coactivity.sectorialHeading where id=?";
+			DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+			if (rowEffect.getErrorNumber() == 1) {
+				return Messenger.getMessenger().setMessage("Invalid Request").error();
+			} else {
+				return Messenger.getMessenger().success();
+			}
 		} else {
-			return Messenger.getMessenger().success();
+			return Messenger.getMessenger().setMessage("Deletion Not Allowed").error();
 		}
 	}
 

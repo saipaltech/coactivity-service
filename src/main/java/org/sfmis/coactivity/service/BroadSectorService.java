@@ -101,12 +101,16 @@ public class BroadSectorService extends AutoService {
 	}
 
 	public ResponseEntity<Map<String, Object>> destroy(String id) {
+		if(!isBeingUsed("coactivity.broadSector", id)) {
 		String sql = "DELETE from coactivity.broadSector where  broadSectorId=?";
 		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
 		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().setMessage("Invalid Request").error();
 		} else {
 			return Messenger.getMessenger().success();
+		}
+		} else {
+			return Messenger.getMessenger().setMessage("Deletion Not Allowed").error();
 		}
 	}
 

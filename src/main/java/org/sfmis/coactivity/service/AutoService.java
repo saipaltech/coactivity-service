@@ -3,7 +3,10 @@ package org.sfmis.coactivity.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.sun.xml.txw2.Document;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.persistence.Tuple;
 
 import org.sfmis.coactivity.ApplicationContextProvider;
 import org.sfmis.coactivity.parser.RequestParser;
@@ -16,10 +19,10 @@ import org.slf4j.LoggerFactory;
 public class AutoService {
 
 	protected Logger log = LoggerFactory.getLogger(getClass());
-	
+
 	@Autowired
 	protected DB db;
-	
+
 	@Autowired
 	public RequestParser document;
 
@@ -45,8 +48,6 @@ public class AutoService {
 	public String displayNum(double num, int precision) {
 		return String.format("%." + precision + "f", num);
 	}
-	
-	
 
 	/**
 	 * converts the given number into readable string format with default precision
@@ -62,7 +63,6 @@ public class AutoService {
 	public Element dbid(String id) {
 		return document.getElementById(id);
 	}
-
 
 	public String request(String param) {
 		return document.getElementById(param).value;
@@ -188,5 +188,58 @@ public class AutoService {
 
 	public String value(Object obj) {
 		return obj == null ? "" : obj + "";
+	}
+
+	public boolean isBeingUsed(String table, String pkey) {
+		String sql = "select id,tableName,serviceName,primaryKey from  coactivity.keyRegistry where tableName=? and primaryKey = ?  for json auto";
+		java.util.List<Tuple> result = db.getResultList(sql, Arrays.asList(table, pkey));
+		if (result != null && result.size() > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean shouldUpdatePartially() {
+		return false;
+	}
+	
+	public List<Tuple> getSelections(String table, String fields, String order) {
+		String sql = "select "+fields+" from "+table;
+		if(order!=null) {
+			sql += " order by "+order;
+		}
+		List<Tuple> list = db.getResultList(sql);
+		return list;
+		
+	}
+
+	public List<Tuple> getSelections(String table, String fields,String where,String order) {
+		String sql = "select "+fields+" from "+table;
+		if(where!=null) {
+			sql += " where "+where;
+		}
+		if(order!=null) {
+			sql += " order by "+order;
+		}
+		List<Tuple> list = db.getResultList(sql);
+		return list;
+	}
+
+	public List<Tuple> getSelections(String table, String fields, String where, String groupby, String having,String order) {
+		String sql = "select "+fields+" from "+table;
+		if(where!=null) {
+			sql += " where "+where;
+		}
+		if(groupby!=null) {
+			sql += " group by "+ groupby;
+		}
+		if(having!=null) {
+			sql += " having "+ having;
+		}
+		if(order!=null) {
+			sql += " order by "+order;
+		}
+		List<Tuple> list = db.getResultList(sql);
+		return list;
 	}
 }

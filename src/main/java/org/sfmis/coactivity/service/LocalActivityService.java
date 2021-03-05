@@ -28,7 +28,6 @@ public class LocalActivityService extends AutoService {
 
 	@Autowired
 	ValidationService validationService;
-	
 
 	public Map<String, String> rules() {
 		Map<String, String> rules = new HashMap<>();
@@ -61,7 +60,6 @@ public class LocalActivityService extends AutoService {
 	public ResponseEntity<Map<String, Object>> store() {
 		LocalActivity model = new LocalActivity();
 		model.loadData(document);
-	
 
 		String sql = "INSERT INTO coactivity.localActivity(laId, activityId, adminId, lmOrgId, code, nameNp, nameEn, disabled, enterBy, enteryDate, approved) VALUES (dbo.newidint(),?,?,?,?,?,?,?,?,GETDATE(),?)";
 		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.activityId, model.adminId, model.lmOrgId, model.code,
@@ -100,12 +98,16 @@ public class LocalActivityService extends AutoService {
 	}
 
 	public ResponseEntity<Map<String, Object>> destroy(String id) {
-		String sql = "DELETE from coactivity.localActivity where  laId=?";
-		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
-		if (rowEffect.getErrorNumber() == 1) {
-			return Messenger.getMessenger().setMessage("Invalid Request").error();
+		if (!isBeingUsed("coactivity.localActivity", id)) {
+			String sql = "DELETE from coactivity.localActivity where  laId=?";
+			DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+			if (rowEffect.getErrorNumber() == 1) {
+				return Messenger.getMessenger().setMessage("Invalid Request").error();
+			} else {
+				return Messenger.getMessenger().success();
+			}
 		} else {
-			return Messenger.getMessenger().success();
+			return Messenger.getMessenger().setMessage("Deletion not allowed").error();
 		}
 	}
 }

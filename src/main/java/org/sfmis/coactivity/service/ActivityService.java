@@ -58,7 +58,7 @@ public class ActivityService extends AutoService {
 		DbResponse rowEffect = db.execute(sql,
 				Arrays.asList(model.centralActivityId, model.code, model.nameEn, model.nameNp, model.descEn,
 						model.descNp, model.cofog, model.disabled, auth.getUserId(), model.approved));
-		if (rowEffect.getErrorNumber()  == 1) {
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -66,11 +66,10 @@ public class ActivityService extends AutoService {
 
 	}
 
-
 	public ResponseEntity<Map<String, Object>> edit(String id) {
-		String sql ="SELECT activityId, centralActivityId, code, nameEn, nameNp, descEn, descNp, cofog, disabled, enterBy, entryDate,approved from coactivity.activity where activityId=? for json auto";
+		String sql = "SELECT activityId, centralActivityId, code, nameEn, nameNp, descEn, descNp, cofog, disabled, enterBy, entryDate,approved from coactivity.activity where activityId=? for json auto";
 		Tuple result = db.getSingleResult(sql, Arrays.asList(id));
-		if(result == null) {
+		if (result == null) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().setData(result.get(0)).success();
@@ -80,9 +79,10 @@ public class ActivityService extends AutoService {
 	public ResponseEntity<Map<String, Object>> update(String id) {
 		Activity model = new Activity();
 		model.loadData(document);
-		String sql ="UPDATE coactivity.activity set centralActivityId=?, code=?, nameEn=?, nameNp=?, descEn=?, descNp=?, cofog=?, disabled=?, approved=? where activityId=?";
-		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.centralActivityId, model.code, model.nameEn, model.nameNp, model.descEn, model.descNp, model.cofog, model.disabled, model.approved,id));
-		if(rowEffect.getErrorNumber() == 1) {
+		String sql = "UPDATE coactivity.activity set centralActivityId=?, code=?, nameEn=?, nameNp=?, descEn=?, descNp=?, cofog=?, disabled=?, approved=? where activityId=?";
+		DbResponse rowEffect = db.execute(sql, Arrays.asList(model.centralActivityId, model.code, model.nameEn,
+				model.nameNp, model.descEn, model.descNp, model.cofog, model.disabled, model.approved, id));
+		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().error();
 		} else {
 			return Messenger.getMessenger().success();
@@ -90,24 +90,29 @@ public class ActivityService extends AutoService {
 	}
 
 	public ResponseEntity<Map<String, Object>> destroy(String id) {
-		String sql ="DELETE from coactivity.activity where activityId =?";
+		if(!isBeingUsed("coactivity.activity", id)) {
+		String sql = "DELETE from coactivity.activity where activityId =?";
 		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
 		if (rowEffect.getErrorNumber() == 1) {
 			return Messenger.getMessenger().setMessage("Invalid Request").error();
 		} else {
 			return Messenger.getMessenger().success();
 		}
-		
+		} else {
+			return Messenger.getMessenger().setMessage("Deletion Not Allowed").error();
+		}
+
 	}
 
 	public List<Map<String, String>> getActivities() {
 		List<Map<String, String>> data = new ArrayList<>();
 		String sql = "select activityId,code,nameEn,nameNp from coactivity.activity where approved=1 and disabled=0 ";
 		if (!document.getElementById("centralActivityId").value.isBlank()) {
-			sql += " and centralActivityId='" + (document.getElementById("centralActivityId").value).replace("'", "''") + "'";
+			sql += " and centralActivityId='" + (document.getElementById("centralActivityId").value).replace("'", "''")
+					+ "'";
 		}
-		
-		sql+="order by [CODE] Asc";
+
+		sql += "order by [CODE] Asc";
 		List<Tuple> tuples = db.getResultList(sql);
 		if (tuples != null) {
 			for (Tuple t : tuples) {
@@ -119,10 +124,8 @@ public class ActivityService extends AutoService {
 				data.add(map);
 			}
 
-		
-	}
+		}
 		return data;
-	
-}
-	}
 
+	}
+}

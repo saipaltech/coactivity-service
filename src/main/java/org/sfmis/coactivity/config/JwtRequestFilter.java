@@ -6,8 +6,12 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.sfmis.coactivity.auth.Authenticated;
 import org.sfmis.coactivity.parser.RequestParser;
+import org.sfmis.coactivity.util.CommonResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,20 +19,21 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
-	
-	private String authServiceUrl = "lb://"+"CENTRAL-SERVICE";
+
+	private String authServiceUrl = "lb://" + "CENTRAL-SERVICE";
 
 	@Autowired
 	Authenticated auth;
 
 	@Autowired
 	RequestParser doc;
-	
+
 	@Autowired
 	private RestTemplate rt;
 
@@ -36,21 +41,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		doc.setRequestParser(request);
-		String userId = "100672300854354147";
-		String orgId = "100712250346721460";
-		String appId = "100542491070891777";
+		/*
+		 * String userId = "100672300854354147"; String orgId = "100712250346721460";
+		 * String appId = "100542491070891777";
+		 * 
+		 * auth.setUserId(userId); auth.setOrgId(orgId); auth.setAppId(appId);
+		 * UsernamePasswordAuthenticationToken springAuthToken = new
+		 * UsernamePasswordAuthenticationToken( userId, null, new ArrayList<>());
+		 * 
+		 * springAuthToken.setDetails(new
+		 * WebAuthenticationDetailsSource().buildDetails(request));
+		 * SecurityContextHolder.getContext().setAuthentication(springAuthToken);
+		 */
 		
-		auth.setUserId(userId);
-		auth.setOrgId(orgId);
-		auth.setAppId(appId);
-		UsernamePasswordAuthenticationToken springAuthToken = new UsernamePasswordAuthenticationToken(
-				userId, null, new ArrayList<>());
-	
-		springAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-		SecurityContextHolder.getContext().setAuthentication(springAuthToken);
-		
-		
-		/*String jwtToken = getTokenfromRequest(request);
+		String jwtToken = getTokenfromRequest(request);
 		
 		if (jwtToken != null) {
 			try {
@@ -59,7 +63,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				 * Set authorized data to a Authrepo, which is accessable from everywhere in the
 				 * project using Authenticated servcice
 				 */
-				/*System.out.println(jwtToken);
+				System.out.println(jwtToken);
 				CommonResponse remData = rt.getForObject(authServiceUrl + "/check-token?_token="+jwtToken, CommonResponse.class);
 				if (remData.getStatus() == 1) {
 					JSONObject data = remData.getJsonData();
@@ -94,9 +98,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 					return;
 				}
 			}
-		}
-		*/
+			
+		
+		
 		filterChain.doFilter(request, response);
+		}
 		
 	}
 

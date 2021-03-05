@@ -92,12 +92,16 @@ public class SectorialActivityService extends AutoService {
 	}
 
 	public ResponseEntity<Map<String, Object>> destroy(String id) {
-		String sql = "DELETE from coactivity.sectorialActivity where saId=?";
-		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
-		if (rowEffect.getErrorNumber() == 1) {
-			return Messenger.getMessenger().setMessage("Invalid Request").error();
+		if (!isBeingUsed("coactivity.sectorialActivity", id)) {
+			String sql = "DELETE from coactivity.sectorialActivity where saId=?";
+			DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+			if (rowEffect.getErrorNumber() == 1) {
+				return Messenger.getMessenger().setMessage("Invalid Request").error();
+			} else {
+				return Messenger.getMessenger().success();
+			}
 		} else {
-			return Messenger.getMessenger().success();
+			return Messenger.getMessenger().setMessage("Deletion not Allowed").error();
 		}
 	}
 

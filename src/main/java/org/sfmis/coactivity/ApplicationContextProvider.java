@@ -29,10 +29,5 @@ public class ApplicationContextProvider implements ApplicationContextAware {
 		
 	}
 	
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
-	
 
 }
