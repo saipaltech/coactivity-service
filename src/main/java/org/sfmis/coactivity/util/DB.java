@@ -22,6 +22,9 @@ public class DB {
 	@PersistenceContext
 	EntityManager em;
 
+	public EntityManager getConnection() {
+		return em;
+	}
 	public List<Tuple> getResultList(String sql, List<?> args) {
 		try {
 			Query qry = em.createNativeQuery(sql, Tuple.class);

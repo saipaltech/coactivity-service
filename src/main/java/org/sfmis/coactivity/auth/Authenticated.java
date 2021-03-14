@@ -16,6 +16,13 @@ public class Authenticated {
 		
 		return ApplicationContextProvider.getBean(Authrepo.class);
 	}
+	public String getToken() {
+		return getAuthRequest().token;
+	}
+
+	public void setToken(String token) {
+		getAuthRequest().token = token;
+	}
 	public String getUserId() {
 		return getAuthRequest().userId;
 	}
