@@ -25,15 +25,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
-
-	private String authServiceUrl = "lb://" + "CENTRAL-SERVICE";
+	
+	private String authServiceUrl = "lb://"+"CENTRAL-SERVICE-MD";
 
 	@Autowired
 	Authenticated auth;
 
 	@Autowired
 	RequestParser doc;
-
+	
 	@Autowired
 	private RestTemplate rt;
 
@@ -41,21 +41,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		doc.setRequestParser(request);
-		/*
-		 * String userId = "100672300854354147"; String orgId = "100712250346721460";
-		 * String appId = "100542491070891777";
-		 * 
-		 * auth.setUserId(userId); auth.setOrgId(orgId); auth.setAppId(appId);
-		 * UsernamePasswordAuthenticationToken springAuthToken = new
-		 * UsernamePasswordAuthenticationToken( userId, null, new ArrayList<>());
-		 * 
-		 * springAuthToken.setDetails(new
-		 * WebAuthenticationDetailsSource().buildDetails(request));
-		 * SecurityContextHolder.getContext().setAuthentication(springAuthToken);
-		 */
-		
 		String jwtToken = getTokenfromRequest(request);
-		
 		if (jwtToken != null) {
 			try {
 				/*
@@ -66,16 +52,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				System.out.println(jwtToken);
 				CommonResponse remData = rt.getForObject(authServiceUrl + "/check-token?_token="+jwtToken, CommonResponse.class);
 				if (remData.getStatus() == 1) {
-					JSONObject data = remData.getJsonData();
+					JSONObject data = remData.getJsonObject();
 					String userId = data.getString("userId");
 					String orgId = data.getString("orgId");
 					String appId = data.getString("appId");
+					String adminId= data.getString("adminId");
 					
-					System.out.println("u:"+userId+" o:"+orgId+" a:"+appId);
 					
 					auth.setUserId(userId);
 					auth.setOrgId(orgId);
 					auth.setAppId(appId);
+					auth.setAdminId(adminId);
 					UsernamePasswordAuthenticationToken springAuthToken = new UsernamePasswordAuthenticationToken(
 							userId, null, new ArrayList<>());
 					springAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -98,11 +85,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 					return;
 				}
 			}
-			
-		
+			catch (Exception e) {
+				e.printStackTrace();
+				setHeaderForEx(response, 0,e.getMessage());
+				return;
+			}
+		}
 		
 		filterChain.doFilter(request, response);
-		}
 		
 	}
 

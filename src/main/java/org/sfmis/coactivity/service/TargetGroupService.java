@@ -1,5 +1,6 @@
 package org.sfmis.coactivity.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -100,5 +101,24 @@ public class TargetGroupService extends AutoService {
 		} else {
 			return Messenger.getMessenger().setMessage("Deletion not allowed").error();
 		}
+	}
+	public List<Map<String, String>> getTargetGroups() {
+		List<Map<String, String>> data = new ArrayList<>();
+		String sql = "select tgId,code,nameEn,nameNp from coactivity.targetGroup where approved=1 and disabled=0 order by [CODE] Asc ";
+		
+		List<Tuple> tuples = db.getResultList(sql);
+		if (tuples != null) {
+			for (Tuple t : tuples) {
+				Map<String, String> map = new HashMap<>();
+				map.put("tgId", t.get("tgId") + "");
+				map.put("nameEn", t.get("nameEn") + "");
+				map.put("nameNp", t.get("nameNp") + "");
+				map.put("code", t.get("code") + "");
+				data.add(map);
+			}
+
+		}
+		return data;
+
 	}
 }

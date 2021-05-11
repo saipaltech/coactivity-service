@@ -79,11 +79,6 @@ public class ActivityController {
 		
 	}
 	
-	@GetMapping("/cofog")
-	public ResponseEntity<Map<String, Object>> cofog() {
-		List<Map<String, String>> data = cs.getCofog();
-		return Messenger.getMessenger().setData(data).success();
-		
-		
-	}
+	
+	
 }

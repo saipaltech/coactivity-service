@@ -1,5 +1,6 @@
 package org.sfmis.coactivity.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +32,11 @@ public class TargetGroupController {
 	@GetMapping("")
 	public ResponseEntity<Map<String, Object>> index(HttpServletRequest request) {
 		return tgs.index();
+	}
+	@GetMapping("/")
+	public ResponseEntity<Map<String, Object>> getfTargetGroups(HttpServletRequest request) {
+		List<Map<String, String>> data = tgs.getTargetGroups();
+		return Messenger.getMessenger().setData(data).success();
 	}
 
 	@PostMapping("")

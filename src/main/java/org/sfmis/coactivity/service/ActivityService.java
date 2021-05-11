@@ -90,14 +90,14 @@ public class ActivityService extends AutoService {
 	}
 
 	public ResponseEntity<Map<String, Object>> destroy(String id) {
-		if(!isBeingUsed("coactivity.activity", id)) {
-		String sql = "DELETE from coactivity.activity where activityId =?";
-		DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
-		if (rowEffect.getErrorNumber() == 1) {
-			return Messenger.getMessenger().setMessage("Invalid Request").error();
-		} else {
-			return Messenger.getMessenger().success();
-		}
+		if (!isBeingUsed("coactivity.activity", id)) {
+			String sql = "DELETE from coactivity.activity where activityId =?";
+			DbResponse rowEffect = db.execute(sql, Arrays.asList(id));
+			if (rowEffect.getErrorNumber() == 1) {
+				return Messenger.getMessenger().setMessage("Invalid Request").error();
+			} else {
+				return Messenger.getMessenger().success();
+			}
 		} else {
 			return Messenger.getMessenger().setMessage("Deletion Not Allowed").error();
 		}
@@ -106,21 +106,19 @@ public class ActivityService extends AutoService {
 
 	public List<Map<String, String>> getActivities() {
 		List<Map<String, String>> data = new ArrayList<>();
-		String sql = "select activityId,code,nameEn,nameNp from coactivity.activity where approved=1 and disabled=0 ";
-		if (!document.getElementById("centralActivityId").value.isBlank()) {
-			sql += " and centralActivityId='" + (document.getElementById("centralActivityId").value).replace("'", "''")
-					+ "'";
-		}
 
-		sql += "order by [CODE] Asc";
+		// String sql = "select activityId,code,nameEn,nameNp from coactivity.activity
+		// where approved=1 and disabled=0 ";
+		String sql = "  select activityid,namenp from coactivity.activity where centralActivityId in (select caId from coactivity.centralActivity where sectorialActivityId in (select saId from coactivity.sectorialActivity where sectorid=7)) and disabled=0 order by namenp";
+
 		List<Tuple> tuples = db.getResultList(sql);
 		if (tuples != null) {
 			for (Tuple t : tuples) {
 				Map<String, String> map = new HashMap<>();
-				map.put("activityId", t.get("activityId") + "");
-				map.put("nameEn", t.get("nameEn") + "");
-				map.put("nameNp", t.get("nameNp") + "");
-				map.put("code", t.get("code") + "");
+				map.put("activityid", t.get("activityid") + "");
+				
+				map.put("namenp", t.get("namenp") + "");
+				
 				data.add(map);
 			}
 
