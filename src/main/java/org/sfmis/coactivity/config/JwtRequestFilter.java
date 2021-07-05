@@ -26,7 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 	
-	private String authServiceUrl = "lb://"+"CENTRAL-SERVICE-MD";
+	private String authServiceUrl = "lb://"+"CENTRAL-SERVICE-RAKESH";
 
 	@Autowired
 	Authenticated auth;
